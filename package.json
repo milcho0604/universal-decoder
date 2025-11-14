@@ -1,0 +1,18 @@
+{
+  "name": "decoding",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build && cp -r public/* dist/",
+    "dev": "vite build --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2"
+  }
+}
