@@ -4,6 +4,7 @@ import { resolve } from 'path';
 export default defineConfig({
   build: {
     outDir: 'dist',
+    minify: false, // 디버깅을 위해 minify 비활성화
     rollupOptions: {
       input: {
         background: resolve(__dirname, 'src/background.ts'),

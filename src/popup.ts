@@ -9,7 +9,9 @@ let resultContainer: HTMLDivElement;
 let metadataContainer: HTMLDivElement;
 
 // 초기화
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('Popup script loaded!');
+
   // DOM 요소 가져오기
   decoderTypeSelect = document.getElementById(
     'decoder-type'
@@ -24,12 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
     'metadata-container'
   ) as HTMLDivElement;
 
-  // 디코더 옵션 초기화
-  initializeDecoderOptions();
+  console.log('DOM elements loaded');
+
+  // 디코더 옵션 초기화 및 저장된 타입 불러오기
+  await initializeDecoderOptions();
+  console.log('Decoder options initialized');
 
   // 이벤트 리스너 등록
   decodeButton.addEventListener('click', handleDecode);
   clearButton.addEventListener('click', handleClear);
+
+  // 디코더 타입 변경 시 저장
+  decoderTypeSelect.addEventListener('change', () => {
+    console.log('Decoder type changed event fired!');
+    saveDecoderType();
+  });
+
+  console.log('Event listeners registered');
   inputTextarea.addEventListener('input', handleInputChange);
   inputTextarea.addEventListener('paste', () => {
     // 붙여넣기 후 자동 디코딩 (자동 감지 모드일 때)
@@ -57,9 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * 디코더 옵션 초기화
+ * 디코더 옵션 초기화 및 저장된 타입 불러오기
  */
-function initializeDecoderOptions() {
+async function initializeDecoderOptions() {
   const decoders = DecoderService.getAvailableDecoders();
   decoderTypeSelect.innerHTML = '';
 
@@ -69,6 +82,61 @@ function initializeDecoderOptions() {
     option.textContent = label;
     decoderTypeSelect.appendChild(option);
   });
+
+  // 저장된 디코더 타입 불러오기
+  try {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      console.log('Loading saved decoder type...');
+      const result = await chrome.storage.local.get(['decoderType']);
+      console.log('Storage result:', result);
+
+      if (
+        result.decoderType &&
+        decoderTypeSelect.querySelector(`option[value="${result.decoderType}"]`)
+      ) {
+        decoderTypeSelect.value = result.decoderType;
+        console.log('✅ Loaded decoder type:', result.decoderType);
+      } else {
+        console.log('No saved decoder type or invalid value');
+      }
+    } else {
+      console.warn('❌ Chrome storage API not available');
+    }
+  } catch (error) {
+    console.error('❌ Failed to load saved decoder type:', error);
+    console.error('Error stack:', (error as Error).stack);
+  }
+}
+
+/**
+ * 디코더 타입 저장
+ */
+async function saveDecoderType() {
+  const selectedValue = decoderTypeSelect.value;
+  console.log('🔵 saveDecoderType called with value:', selectedValue);
+
+  try {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      console.log('Setting decoder type to storage...');
+      await chrome.storage.local.set({
+        decoderType: selectedValue,
+      });
+      console.log('✅ Decoder type saved successfully:', selectedValue);
+    } else {
+      console.warn('❌ Chrome storage API not available');
+    }
+  } catch (error) {
+    console.error('❌ Failed to save decoder type:', error);
+    console.error('Error stack:', (error as Error).stack);
+  }
 }
 
 /**
