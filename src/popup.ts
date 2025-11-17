@@ -46,6 +46,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Decoder type changed event fired!');
     saveDecoderType();
   });
+  
+  // 개발자 블로그 링크
+  const devBlogLink = document.getElementById(
+    'dev-blog-link'
+  ) as HTMLButtonElement;
+  devBlogLink.addEventListener('click', () => {
+    window.open(
+      'https://velog.io/@milcho0604/posts',
+      '_blank',
+      'noopener,noreferrer'
+    );
+  });
 
   console.log('Event listeners registered');
   inputTextarea.addEventListener('input', handleInputChange);

@@ -83,6 +83,13 @@
         gap: 8px;
       }
 
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+      }
+
       .header h1 {
         margin: 0;
         font-size: 20px;
@@ -114,6 +121,25 @@
 
       .theme-toggle:hover {
         background: rgba(255, 255, 255, 0.3);
+      }
+      .go-blog-btn {
+        margin: 0;
+        margin-left: auto;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 12px;
+        flex-shrink: 0;
+        white-space: nowrap;
+        display: inline;
+        line-height: inherit;
+      }
+      .go-blog-btn:hover {
+        opacity: 0.8;
+        text-decoration: underline;
       }
 
       .content {
@@ -292,10 +318,15 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>🔓 디코더 도구</h1>
-        <button class="theme-toggle" id="theme-toggle" title="다크모드 토글">
-          🌙
-        </button>
+        <div class="header-left">
+          <h1>🔓 디코더 도구</h1>
+          <button class="theme-toggle" id="theme-toggle" title="다크모드 토글">
+            🌙
+          </button>
+        </div>
+        <a id="dev-blog-link" class="go-blog-btn" href="#" target="_blank"
+          >개발자 블로그</a
+        >
       </div>
       <div class="content">
         <div class="section">
