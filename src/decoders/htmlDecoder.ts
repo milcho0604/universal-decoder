@@ -13,7 +13,7 @@ export class HtmlDecoder {
   };
   
   static decode(input: string): string {
-    // 숫자 엔티티 디코딩 (&#123; 또는 &#x1F;)
+    // 숫자 엔티티 디코딩 방식 수정 필요(&#123; 또는 &#x1F;)
     let result = input.replace(/&#(\d+);/g, (match, dec) => {
       return String.fromCharCode(parseInt(dec, 10));
     });
