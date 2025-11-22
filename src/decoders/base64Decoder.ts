@@ -11,7 +11,10 @@ export class Base64Decoder {
       // 공백 제거
       const cleaned = input.trim().replace(/\s/g, '');
       const decoded = atob(cleaned);
-      return decoded;
+
+      // UTF-8 디코딩: atob는 바이너리 문자열을 반환하므로 UTF-8로 변환
+      const bytes = Uint8Array.from(decoded, c => c.charCodeAt(0));
+      return new TextDecoder('utf-8').decode(bytes);
     } catch (e) {
       throw new Error('Invalid Base64 string');
     }
@@ -31,7 +34,10 @@ export class Base64Decoder {
       }
 
       const decoded = atob(base64);
-      return decoded;
+
+      // UTF-8 디코딩: atob는 바이너리 문자열을 반환하므로 UTF-8로 변환
+      const bytes = Uint8Array.from(decoded, c => c.charCodeAt(0));
+      return new TextDecoder('utf-8').decode(bytes);
     } catch (e) {
       throw new Error('Invalid Base64URL string');
     }
