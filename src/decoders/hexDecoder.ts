@@ -24,16 +24,41 @@ export class HexDecoder {
   }
 
   static canDecode(input: string): boolean {
-    // Hex 패턴 확인 (최소 2자 이상)
+    // Hex 패턴 확인
     const cleaned = input
       .replace(/0x/gi, '')
       .replace(/\\x/gi, '')
       .replace(/[^0-9A-Fa-f]/g, '');
 
-    return (
-      cleaned.length >= 2 &&
-      cleaned.length % 2 === 0 &&
-      /^[0-9A-Fa-f]+$/.test(cleaned)
-    );
+    // 최소 길이 체크 (10자 이상 = 5바이트)
+    if (cleaned.length < 10) {
+      return false;
+    }
+
+    // 짝수 길이여야 함
+    if (cleaned.length % 2 !== 0) {
+      return false;
+    }
+
+    // Hex 문자만 포함
+    if (!/^[0-9A-Fa-f]+$/.test(cleaned)) {
+      return false;
+    }
+
+    // 실제 디코딩 시도하여 유효성 검증
+    try {
+      let result = '';
+      for (let i = 0; i < cleaned.length; i += 2) {
+        const hex = cleaned.substr(i, 2);
+        const charCode = parseInt(hex, 16);
+        result += String.fromCharCode(charCode);
+      }
+
+      // 결과가 대부분 printable 문자인지 확인
+      const printableCount = (result.match(/[ -~\n\r\t\u0080-\uFFFF]/g) || []).length;
+      return printableCount >= result.length * 0.7; // 70% 이상이 printable
+    } catch {
+      return false;
+    }
   }
 }

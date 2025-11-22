@@ -34,13 +34,26 @@ export class CharCodeDecoder {
     if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
       try {
         const parsed = JSON.parse(trimmed);
-        return (
-          Array.isArray(parsed) &&
-          parsed.length > 0 &&
-          parsed.every(
-            (n: any) => typeof n === 'number' && n >= 0 && n <= 65535
-          )
+        // 최소 3개 이상의 문자 코드
+        if (!Array.isArray(parsed) || parsed.length < 3) {
+          return false;
+        }
+
+        // 모든 요소가 유효한 문자 코드인지 확인
+        const isValidCharCodes = parsed.every(
+          (n: any) => typeof n === 'number' && n >= 32 && n <= 65535
         );
+
+        if (!isValidCharCodes) {
+          return false;
+        }
+
+        // ASCII 인쇄 가능 문자 범위(32-126) 또는 확장 ASCII(128-255)가 대부분이어야 함
+        const printableCount = parsed.filter(
+          (n: any) => (n >= 32 && n <= 126) || (n >= 128 && n <= 65535)
+        ).length;
+
+        return printableCount >= parsed.length * 0.8; // 80% 이상
       } catch {
         return false;
       }
@@ -48,12 +61,28 @@ export class CharCodeDecoder {
 
     // 쉼표/공백으로 구분된 숫자 형식 확인
     const numbers = trimmed.split(/[,\s]+/).filter((s) => s.length > 0);
-    return (
-      numbers.length > 0 &&
-      numbers.every((n) => {
-        const num = parseInt(n, 10);
-        return !isNaN(num) && num >= 0 && num <= 65535;
-      })
-    );
+
+    // 최소 3개 이상
+    if (numbers.length < 3) {
+      return false;
+    }
+
+    // 모든 요소가 유효한 숫자인지 확인
+    const validNumbers = numbers.every((n) => {
+      const num = parseInt(n, 10);
+      return !isNaN(num) && num >= 32 && num <= 65535;
+    });
+
+    if (!validNumbers) {
+      return false;
+    }
+
+    // 대부분이 인쇄 가능한 문자 코드 범위여야 함
+    const printableCount = numbers.filter((n) => {
+      const num = parseInt(n, 10);
+      return (num >= 32 && num <= 126) || (num >= 128 && num <= 65535);
+    }).length;
+
+    return printableCount >= numbers.length * 0.8; // 80% 이상
   }
 }
