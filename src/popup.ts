@@ -1,5 +1,16 @@
 import { DecoderService, DecoderType } from './decoderService';
 
+// Storage 관련 인터페이스
+interface StorageItem {
+  key: string;
+  value: string;
+  type: 'localStorage' | 'sessionStorage' | 'cookie';
+}
+
+interface StorageData {
+  items: StorageItem[];
+}
+
 // DOM 요소
 let decoderTypeSelect: HTMLSelectElement;
 let inputTextarea: HTMLTextAreaElement;
@@ -10,6 +21,9 @@ let metadataContainer: HTMLDivElement;
 let themeToggle: HTMLButtonElement;
 let copyButton: HTMLButtonElement;
 let detectedTypeBadge: HTMLSpanElement;
+let autoFetchToggle: HTMLButtonElement;
+let storageSection: HTMLDivElement;
+let storageListContainer: HTMLDivElement;
 
 // 초기화
 document.addEventListener('DOMContentLoaded', async () => {
@@ -31,6 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
   copyButton = document.getElementById('copy-btn') as HTMLButtonElement;
   detectedTypeBadge = document.getElementById('detected-type-badge') as HTMLSpanElement;
+  autoFetchToggle = document.getElementById('auto-fetch-toggle') as HTMLButtonElement;
+  storageSection = document.getElementById('storage-section') as HTMLDivElement;
+  storageListContainer = document.getElementById('storage-list-container') as HTMLDivElement;
 
   console.log('DOM elements loaded');
 
@@ -41,6 +58,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 다크모드 초기화
   initializeTheme();
+
+  // Auto-Fetch 모드 초기화
+  initializeAutoFetch();
 
   // 디코더 옵션 초기화 및 저장된 타입 불러오기
   await initializeDecoderOptions();
@@ -97,6 +117,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 다크모드 토글 버튼
   themeToggle.addEventListener('click', toggleTheme);
+
+  // Auto-Fetch 토글 버튼
+  autoFetchToggle.addEventListener('click', toggleAutoFetch);
 });
 
 /**
@@ -140,6 +163,146 @@ async function toggleTheme() {
   } catch (error) {
     console.error('Failed to save theme preference:', error);
   }
+}
+
+/**
+ * Auto-Fetch 모드 초기화
+ */
+async function initializeAutoFetch() {
+  try {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      const result = await chrome.storage.local.get(['autoFetchMode']);
+      if (result.autoFetchMode) {
+        autoFetchToggle.classList.add('active');
+        storageSection.style.display = 'block';
+        await fetchStorageData();
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load auto-fetch preference:', error);
+  }
+}
+
+/**
+ * Auto-Fetch 모드 토글
+ */
+async function toggleAutoFetch() {
+  const isActive = autoFetchToggle.classList.toggle('active');
+
+  try {
+    if (
+      typeof chrome !== 'undefined' &&
+      chrome.storage &&
+      chrome.storage.local
+    ) {
+      await chrome.storage.local.set({ autoFetchMode: isActive });
+    }
+  } catch (error) {
+    console.error('Failed to save auto-fetch preference:', error);
+  }
+
+  if (isActive) {
+    storageSection.style.display = 'block';
+    await fetchStorageData();
+  } else {
+    storageSection.style.display = 'none';
+  }
+}
+
+/**
+ * Content Script로부터 Storage 데이터 가져오기
+ */
+async function fetchStorageData() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    if (!tab.id || !tab.url) {
+      showStorageError('현재 탭을 찾을 수 없습니다.');
+      return;
+    }
+
+    // chrome://, edge://, about:, file:// 등 특수 페이지 체크
+    const url = tab.url.toLowerCase();
+    if (
+      // url.startsWith('chrome://') ||
+      // url.startsWith('chrome-extension://') ||
+      url.startsWith('edge://') ||
+      url.startsWith('about:') ||
+      url.startsWith('file://') ||
+      url.startsWith('view-source:')
+    ) {
+      showStorageError('이 페이지에서는 Storage에 접근할 수 없습니다.\n(브라우저 시스템 페이지)');
+      return;
+    }
+
+    // Content script로 메시지 전송
+    const response = await chrome.tabs.sendMessage(tab.id, {
+      action: 'fetchStorageData'
+    }) as StorageData;
+
+    if (response && response.items) {
+      updateStorageList(response.items);
+    } else {
+      showStorageError('Storage 데이터를 가져올 수 없습니다.');
+    }
+  } catch (error) {
+    console.error('Failed to fetch storage data:', error);
+    showStorageError('Storage 데이터를 가져오는데 실패했습니다.\n페이지를 새로고침 후 다시 시도해주세요.');
+  }
+}
+
+/**
+ * Storage 리스트 UI 업데이트
+ */
+function updateStorageList(items: StorageItem[]) {
+  storageListContainer.innerHTML = '';
+  storageListContainer.classList.add('visible');
+
+  if (items.length === 0) {
+    storageListContainer.innerHTML = '<div class="storage-list-empty">Storage 항목이 없습니다.</div>';
+    return;
+  }
+
+  items.forEach((item) => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'storage-item';
+    itemDiv.innerHTML = `
+      <div class="storage-item-header">
+        <span class="storage-item-key">${escapeHtml(item.key)}</span>
+        <span class="storage-item-type">${item.type}</span>
+      </div>
+      <div class="storage-item-value">${escapeHtml(item.value)}</div>
+    `;
+
+    // 클릭 시 자동으로 입력하고 디코딩
+    itemDiv.addEventListener('click', () => {
+      inputTextarea.value = item.value;
+      handleDecode();
+    });
+
+    storageListContainer.appendChild(itemDiv);
+  });
+}
+
+/**
+ * Storage 에러 표시
+ */
+function showStorageError(message: string) {
+  storageListContainer.innerHTML = `<div class="storage-list-empty">${escapeHtml(message)}</div>`;
+  storageListContainer.classList.add('visible');
+}
+
+/**
+ * HTML 이스케이프 (XSS 방지)
+ */
+function escapeHtml(text: string): string {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 /**

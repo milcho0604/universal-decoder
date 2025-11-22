@@ -12,6 +12,13 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["activeTab", "storage"],
-  "host_permissions": ["http://*/*", "https://*/*"]
+  "permissions": ["activeTab", "storage", "cookies"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
 }

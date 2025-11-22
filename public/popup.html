@@ -97,7 +97,8 @@
         flex-shrink: 0;
       }
 
-      .theme-toggle {
+      .theme-toggle,
+      .auto-fetch-toggle {
         background: rgba(255, 255, 255, 0.2);
         border: none;
         border-radius: 4px;
@@ -119,8 +120,14 @@
         overflow: hidden;
       }
 
-      .theme-toggle:hover {
+      .theme-toggle:hover,
+      .auto-fetch-toggle:hover {
         background: rgba(255, 255, 255, 0.3);
+      }
+
+      .auto-fetch-toggle.active {
+        background: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
       }
       .go-blog-btn {
         margin: 0;
@@ -374,6 +381,82 @@
       body.dark-mode .detected-badge {
         background: var(--btn-primary);
       }
+
+      .storage-list-container {
+        display: none;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--bg-secondary);
+        transition: background-color 0.3s, border-color 0.3s;
+      }
+
+      .storage-list-container.visible {
+        display: block;
+      }
+
+      .storage-item {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border-color);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .storage-item:last-child {
+        border-bottom: none;
+      }
+
+      .storage-item:hover {
+        background: var(--bg-tertiary);
+      }
+
+      .storage-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .storage-item-key {
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 12px;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .storage-item-type {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 500;
+        background: var(--btn-secondary);
+        color: var(--btn-secondary-text);
+        flex-shrink: 0;
+      }
+
+      .storage-item-value {
+        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+        font-size: 11px;
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .storage-list-empty {
+        padding: 20px;
+        text-align: center;
+        color: var(--text-tertiary);
+        font-size: 12px;
+        font-style: italic;
+      }
     </style>
   </head>
   <body>
@@ -383,6 +466,9 @@
           <h1>🔓 유니버설 디코더</h1>
           <button class="theme-toggle" id="theme-toggle" title="다크모드 토글">
             🌙
+          </button>
+          <button class="auto-fetch-toggle" id="auto-fetch-toggle" title="Auto-Fetch 모드 (Storage/Cookie 자동 가져오기)">
+            🔄
           </button>
         </div>
         <a id="dev-blog-link" class="go-blog-btn" href="#" target="_blank"
@@ -398,6 +484,13 @@
           <select id="decoder-type">
             <!-- 옵션은 JavaScript에서 동적으로 추가 -->
           </select>
+        </div>
+
+        <div class="section" id="storage-section" style="display: none;">
+          <label>Storage / Cookie 목록</label>
+          <div id="storage-list-container" class="storage-list-container">
+            <div class="storage-list-empty">Auto-Fetch 모드를 활성화하면 현재 페이지의 Storage와 Cookie를 가져옵니다.</div>
+          </div>
         </div>
 
         <div class="section">
