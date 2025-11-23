@@ -47,6 +47,32 @@ export class DecoderService {
   }
 
   /**
+   * 유효한 JSON인지 확인
+   */
+  private static isValidJSON(input: string): boolean {
+    const trimmed = input.trim();
+
+    // JSON은 { 또는 [로 시작해야 함
+    if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      return false;
+    }
+
+    // 최소 길이 (빈 객체/배열 이상)
+    if (trimmed.length < 2) {
+      return false;
+    }
+
+    // JSON 파싱 시도
+    try {
+      const parsed = JSON.parse(trimmed);
+      // 객체 또는 배열이어야 함 (primitive 값 제외)
+      return typeof parsed === 'object' && parsed !== null;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * 자동 감지: 입력 문자열을 분석하여 적절한 디코더 선택
    */
   static detectDecoder(input: string): DecoderType {
@@ -55,17 +81,22 @@ export class DecoderService {
     }
 
     // 우선순위 순서로 감지
-    // 1. JWT (Base64URL의 특수 케이스)
+    // 1. JSON Pretty (객체/배열 형태는 우선 인식)
+    if (this.isValidJSON(input)) {
+      return 'json-pretty';
+    }
+
+    // 2. JWT (Base64URL의 특수 케이스)
     if (Base64Decoder.canDecodeJWT(input)) {
       return 'jwt';
     }
 
-    // 2. GZIP (Base64 + GZIP)
+    // 3. GZIP (Base64 + GZIP)
     if (GzipDecoder.canDecode(input)) {
       return 'gzip';
     }
 
-    // 3. Base64URL
+    // 4. Base64URL
     if (
       (Base64Decoder.canDecodeBase64Url(input) && input.includes('_')) ||
       input.includes('-')
@@ -73,32 +104,32 @@ export class DecoderService {
       return 'base64url';
     }
 
-    // 4. Base64
+    // 5. Base64
     if (Base64Decoder.canDecodeBase64(input)) {
       return 'base64';
     }
 
-    // 5. Hex
+    // 6. Hex
     if (HexDecoder.canDecode(input)) {
       return 'hex';
     }
 
-    // 6. CharCode
+    // 7. CharCode
     if (CharCodeDecoder.canDecode(input)) {
       return 'charcode';
     }
 
-    // 7. URL 인코딩
+    // 8. URL 인코딩
     if (UrlDecoder.canDecode(input)) {
       return 'url';
     }
 
-    // 8. HTML 엔티티
+    // 9. HTML 엔티티
     if (HtmlDecoder.canDecode(input)) {
       return 'html';
     }
 
-    // 9. ROT13
+    // 10. ROT13
     if (Rot13Decoder.canDecode(input)) {
       return 'rot13';
     }

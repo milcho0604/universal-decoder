@@ -156,9 +156,39 @@ export class Base64Decoder {
    * JWT 형식인지 확인
    */
   static canDecodeJWT(input: string): boolean {
-    const parts = input.trim().split('.');
-    return (
-      parts.length === 3 && parts.every((part) => this.canDecodeBase64Url(part))
-    );
+    const trimmed = input.trim();
+    const parts = trimmed.split('.');
+
+    // JWT는 정확히 3개 부분으로 구성
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    // JWT header는 거의 항상 eyJ로 시작 (JSON { 의 Base64URL 인코딩)
+    if (!parts[0].startsWith('eyJ')) {
+      return false;
+    }
+
+    // 각 부분이 Base64URL 문자만 포함하는지 확인 (-, _ 필수 아님)
+    const base64UrlPattern = /^[A-Za-z0-9_-]+$/;
+    if (!parts.every(part => part.length > 0 && base64UrlPattern.test(part))) {
+      return false;
+    }
+
+    // Header와 Payload는 충분한 길이여야 함 (최소 10자)
+    if (parts[0].length < 10 || parts[1].length < 10) {
+      return false;
+    }
+
+    // 실제 디코딩 시도하여 JSON인지 확인
+    try {
+      const header = JSON.parse(this.decodeBase64Url(parts[0]));
+      const payload = JSON.parse(this.decodeBase64Url(parts[1]));
+
+      // header에 typ 또는 alg 필드가 있는지 확인
+      return typeof header === 'object' && (header.typ || header.alg);
+    } catch {
+      return false;
+    }
   }
 }
