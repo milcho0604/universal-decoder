@@ -212,7 +212,7 @@ npm run dev
 
 ## 📄 라이센스
 
-이 프로젝트는 MIT 라이센스 하에 배포됩니다.
+Creative Commons NonCommercial (CC BY-NC) - 상업적 이용 금지
 
 ## 🙏 크레딧
 
