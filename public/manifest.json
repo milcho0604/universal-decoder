@@ -15,7 +15,7 @@
   "side_panel": {
     "default_path": "popup.html"
   },
-  "permissions": ["activeTab", "storage", "cookies", "sidePanel"],
+  "permissions": ["activeTab", "storage", "sidePanel"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "content_scripts": [
     {
