@@ -4,6 +4,11 @@
 
 **Universal Decoder**는 다양한 인코딩 형식을 자동으로 감지하고 디코딩하는 Chrome 확장 프로그램입니다. URL, Base64, JWT, Hex, ROT13 등 10가지 이상의 형식을 지원하며, 개발자의 생산성을 높이는 강력한 도구입니다.
 
+<div style="display:flex; gap:16px;">
+  <img src="https://github.com/user-attachments/assets/3c47f758-33e1-4c15-b791-917f2a0dddcd" width="300" />
+  <img src="https://github.com/user-attachments/assets/c74f47e6-0631-4332-8601-60596e48aa28" width="300" />
+</div>
+
 ## ✨ 주요 기능
 
 ### 🎯 자동 감지
@@ -116,6 +121,7 @@ _Coming soon - 스토어 출시 예정_
 2. 헤더의 📋 버튼 클릭
 3. 브라우저 우측에 Side Panel이 열림
 4. 페이지를 보면서 동시에 디코딩 작업 가능
+<img width="1512" height="814" alt="스크린샷 2025-11-24 오후 9 01 39" src="https://github.com/user-attachments/assets/8b846878-4ab0-45d4-b27c-97543375da62" />
 
 **장점:**
 
@@ -129,6 +135,7 @@ _Coming soon - 스토어 출시 예정_
 2. 헤더의 🗗 버튼 클릭
 3. 새 창으로 열림 (500x620 크기)
 4. 자유롭게 드래그하고 크기 조정 가능
+<img width="876" height="612" alt="스크린샷 2025-11-24 오후 9 01 59" src="https://github.com/user-attachments/assets/2f667af0-6a53-4fe6-a53d-e137a8ac95b0" />
 
 **장점:**
 
