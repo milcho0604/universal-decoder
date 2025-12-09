@@ -98,7 +98,8 @@
       }
 
       .theme-toggle,
-      .auto-fetch-toggle {
+      .auto-fetch-toggle,
+      .language-toggle {
         background: rgba(255, 255, 255, 0.2);
         border: none;
         border-radius: 4px;
@@ -121,8 +122,18 @@
       }
 
       .theme-toggle:hover,
-      .auto-fetch-toggle:hover {
+      .auto-fetch-toggle:hover,
+      .language-toggle:hover {
         background: rgba(255, 255, 255, 0.3);
+      }
+
+      .language-toggle {
+        font-size: 10px;
+        font-weight: 600;
+        color: white;
+        min-width: 32px;
+        max-width: 32px;
+        width: 32px;
       }
 
       .auto-fetch-toggle.active {
@@ -638,28 +649,31 @@
     <div class="container">
       <div class="header">
         <div class="header-left">
-          <h1>🔓 Universal Decoder</h1>
-          <button class="theme-toggle" id="theme-toggle" title="다크모드 토글">
+          <h1 data-i18n="header.title">🔓 Universal Decoder</h1>
+          <button class="language-toggle" id="language-toggle" data-i18n-title="language.switch" title="언어 전환 (한국어/English)">
+            <span data-i18n="language.current">KO</span>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" data-i18n-title="header.darkMode" title="다크모드 토글">
             🌙
           </button>
-          <button class="auto-fetch-toggle" id="auto-fetch-toggle" title="Auto-Fetch 모드 (Storage/Cookie 자동 가져오기)">
+          <button class="auto-fetch-toggle" id="auto-fetch-toggle" data-i18n-title="header.autoFetch" title="Auto-Fetch 모드 (Storage/Cookie 자동 가져오기)">
             🔄
           </button>
-          <button class="theme-toggle" id="open-sidepanel-btn" title="Side Panel로 열기">
+          <button class="theme-toggle" id="open-sidepanel-btn" data-i18n-title="header.sidePanel" title="Side Panel로 열기">
             📋
           </button>
-          <button class="theme-toggle" id="open-window-btn" title="새 창으로 열기">
+          <button class="theme-toggle" id="open-window-btn" data-i18n-title="header.newWindow" title="새 창으로 열기">
             🗗
           </button>
         </div>
-        <a id="dev-blog-link" class="go-blog-btn" href="#" target="_blank"
+        <a id="dev-blog-link" class="go-blog-btn" href="#" target="_blank" data-i18n="header.devBlog"
           >개발자 블로그</a
         >
       </div>
       <div class="content">
         <div class="section">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <label for="decoder-type">디코딩 방식</label>
+            <label for="decoder-type" data-i18n="decoder.label">디코딩 방식</label>
             <span id="detected-type-badge" class="detected-badge" style="display: none;"></span>
           </div>
           <select id="decoder-type">
@@ -668,53 +682,54 @@
         </div>
 
         <div class="section" id="storage-section" style="display: none;">
-          <label>Storage / Cookie 목록</label>
+          <label data-i18n="storage.title">Storage / Cookie 목록</label>
           <div id="storage-list-container" class="storage-list-container">
-            <div class="storage-list-empty">Auto-Fetch 모드를 활성화하면 현재 페이지의 Storage와 Cookie를 가져옵니다.</div>
+            <div class="storage-list-empty" data-i18n="storage.empty">Auto-Fetch 모드를 활성화하면 현재 페이지의 Storage와 Cookie를 가져옵니다.</div>
           </div>
         </div>
 
         <div class="section" id="history-section" style="display: none;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <label>디코딩 히스토리</label>
+              <label data-i18n="history.title">디코딩 히스토리</label>
               <label class="select-all-label" style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); cursor: pointer;">
                 <input type="checkbox" id="select-all-checkbox" style="cursor: pointer;">
-                <span>전체 선택</span>
+                <span data-i18n="history.selectAll">전체 선택</span>
               </label>
             </div>
             <div style="display: flex; gap: 4px;">
-              <button class="btn-copy" id="delete-selected-btn" style="font-size: 11px; padding: 4px 8px; opacity: 0.5; cursor: not-allowed;" disabled>선택 삭제</button>
-              <button class="btn-copy" id="clear-history-btn" style="font-size: 11px; padding: 4px 8px;">전체 삭제</button>
+              <button class="btn-copy" id="delete-selected-btn" style="font-size: 11px; padding: 4px 8px; opacity: 0.5; cursor: not-allowed;" disabled data-i18n="history.deleteSelected">선택 삭제</button>
+              <button class="btn-copy" id="clear-history-btn" style="font-size: 11px; padding: 4px 8px;" data-i18n="history.deleteAll">전체 삭제</button>
             </div>
           </div>
           <div id="history-recent-container" class="history-recent-container"></div>
           <div id="history-list-container" class="history-list-container">
-            <div class="history-list-empty">히스토리가 없습니다.</div>
+            <div class="history-list-empty" data-i18n="history.empty">히스토리가 없습니다.</div>
           </div>
         </div>
 
         <div class="section">
-          <label for="input-text">입력 텍스트</label>
+          <label for="input-text" data-i18n="input.label">입력 텍스트</label>
           <textarea
             id="input-text"
             placeholder="디코딩할 텍스트를 입력하세요..."
+            data-i18n-placeholder="input.placeholder"
           ></textarea>
         </div>
 
         <div class="button-group">
-          <button class="btn-primary" id="decode-btn">디코딩</button>
-          <button class="btn-secondary" id="clear-btn">초기화</button>
+          <button class="btn-primary" id="decode-btn" data-i18n="button.decode">디코딩</button>
+          <button class="btn-secondary" id="clear-btn" data-i18n="button.clear">초기화</button>
         </div>
 
         <div class="result-section">
           <div class="result-header">
-            <label>결과</label>
-            <button class="btn-copy" id="copy-btn" title="결과 복사">
+            <label data-i18n="result.label">결과</label>
+            <button class="btn-copy" id="copy-btn" data-i18n-title="result.label" title="결과 복사" data-i18n="button.copy">
               📋 복사
             </button>
           </div>
-          <div id="result-container" class="result-container empty">
+          <div id="result-container" class="result-container empty" data-i18n="result.empty">
             결과가 여기에 표시됩니다...
           </div>
           <div

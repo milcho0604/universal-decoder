@@ -1,4 +1,5 @@
 import { DecoderService, DecoderType } from './decoderService';
+import { i18n } from './i18n/i18n';
 
 // Storage 관련 인터페이스
 interface StorageItem {
@@ -29,6 +30,7 @@ let clearButton: HTMLButtonElement;
 let resultContainer: HTMLDivElement;
 let metadataContainer: HTMLDivElement;
 let themeToggle: HTMLButtonElement;
+let languageToggle: HTMLButtonElement;
 let copyButton: HTMLButtonElement;
 let detectedTypeBadge: HTMLSpanElement;
 let autoFetchToggle: HTMLButtonElement;
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'metadata-container'
   ) as HTMLDivElement;
   themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
+  languageToggle = document.getElementById('language-toggle') as HTMLButtonElement;
   copyButton = document.getElementById('copy-btn') as HTMLButtonElement;
   detectedTypeBadge = document.getElementById('detected-type-badge') as HTMLSpanElement;
   autoFetchToggle = document.getElementById('auto-fetch-toggle') as HTMLButtonElement;
@@ -82,6 +85,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   copyButton.disabled = true;
   copyButton.style.opacity = '0.5';
   copyButton.style.cursor = 'not-allowed';
+
+  // 언어 초기화 (가장 먼저!)
+  await initializeLanguage();
 
   // 다크모드 초기화
   initializeTheme();
@@ -145,6 +151,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 다크모드 토글 버튼
   themeToggle.addEventListener('click', toggleTheme);
 
+  // 언어 토글 버튼
+  languageToggle.addEventListener('click', toggleLanguage);
+
   // Auto-Fetch 토글 버튼
   autoFetchToggle.addEventListener('click', toggleAutoFetch);
 
@@ -207,6 +216,70 @@ async function toggleTheme() {
     }
   } catch (error) {
     console.error('Failed to save theme preference:', error);
+  }
+}
+
+/**
+ * 언어 초기화
+ */
+async function initializeLanguage() {
+  try {
+    await i18n.loadLanguage();
+    i18n.updatePageText();
+
+    // 언어 버튼 텍스트 업데이트
+    const langBtn = languageToggle.querySelector('span');
+    if (langBtn) {
+      langBtn.textContent = i18n.t('language.current');
+    }
+
+    // 디코더 옵션 초기화 (언어가 설정된 후)
+    updateDecoderOptions();
+  } catch (error) {
+    console.error('Failed to initialize language:', error);
+  }
+}
+
+/**
+ * 언어 토글
+ */
+async function toggleLanguage() {
+  i18n.toggleLanguage();
+  await i18n.saveLanguage();
+  i18n.updatePageText();
+
+  // 언어 버튼 텍스트 업데이트
+  const langBtn = languageToggle.querySelector('span');
+  if (langBtn) {
+    langBtn.textContent = i18n.t('language.current');
+  }
+
+  // 디코더 옵션 다시 생성
+  updateDecoderOptions();
+
+  // 히스토리 다시 로드 (번역된 라벨로 업데이트)
+  await loadHistory();
+}
+
+/**
+ * 디코더 옵션 업데이트 (언어 변경 시)
+ */
+function updateDecoderOptions() {
+  const currentValue = decoderTypeSelect.value;
+  const decoders = DecoderService.getAvailableDecoders();
+  decoderTypeSelect.innerHTML = '';
+
+  decoders.forEach(({ value, label }) => {
+    const option = document.createElement('option');
+    option.value = value;
+    // 번역된 라벨 사용
+    option.textContent = i18n.t(`decoder.${value}`);
+    decoderTypeSelect.appendChild(option);
+  });
+
+  // 이전 선택값 복원
+  if (decoderTypeSelect.querySelector(`option[value="${currentValue}"]`)) {
+    decoderTypeSelect.value = currentValue;
   }
 }
 
@@ -308,7 +381,7 @@ function updateStorageList(items: StorageItem[]) {
   storageListContainer.classList.add('visible');
 
   if (items.length === 0) {
-    storageListContainer.innerHTML = '<div class="storage-list-empty">Storage 항목이 없습니다.</div>';
+    storageListContainer.innerHTML = `<div class="storage-list-empty">${i18n.t('storage.noItems')}</div>`;
     return;
   }
 
@@ -354,16 +427,6 @@ function escapeHtml(text: string): string {
  * 디코더 옵션 초기화 및 저장된 타입 불러오기
  */
 async function initializeDecoderOptions() {
-  const decoders = DecoderService.getAvailableDecoders();
-  decoderTypeSelect.innerHTML = '';
-
-  decoders.forEach(({ value, label }) => {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = label;
-    decoderTypeSelect.appendChild(option);
-  });
-
   // 저장된 디코더 타입 불러오기
   try {
     if (
@@ -440,14 +503,14 @@ async function handleDecode() {
   const input = inputTextarea.value.trim();
 
   if (!input) {
-    showResult('', false, '입력이 비어있습니다.');
+    showResult('', false, i18n.t('result.inputEmpty'));
     return;
   }
 
   const decoderType = decoderTypeSelect.value as DecoderType;
 
   // 로딩 표시
-  showResult('디코딩 중...', false);
+  showResult(i18n.t('result.decoding'), false);
   decodeButton.disabled = true;
 
   try {
@@ -492,12 +555,12 @@ function showResult(
   error?: string,
   metadata?: any
 ) {
-  resultContainer.textContent = text || '결과가 없습니다.';
+  resultContainer.textContent = text || i18n.t('result.noResult');
 
   // 클래스 초기화
   resultContainer.classList.remove('empty', 'success', 'error');
 
-  if (!text || text === '결과가 여기에 표시됩니다...') {
+  if (!text || text === i18n.t('result.empty')) {
     resultContainer.classList.add('empty');
     copyButton.disabled = true;
     copyButton.style.opacity = '0.5';
@@ -521,7 +584,7 @@ function showResult(
     let metadataHtml = '';
 
     if (metadata.header) {
-      metadataHtml += `<div class="metadata-title">JWT Header:</div>`;
+      metadataHtml += `<div class="metadata-title">${i18n.t('metadata.jwtHeader')}</div>`;
       metadataHtml += `<pre style="margin: 4px 0; white-space: pre-wrap;">${JSON.stringify(
         metadata.header,
         null,
@@ -530,7 +593,7 @@ function showResult(
     }
 
     if (metadata.payload) {
-      metadataHtml += `<div class="metadata-title" style="margin-top: 8px;">JWT Payload:</div>`;
+      metadataHtml += `<div class="metadata-title" style="margin-top: 8px;">${i18n.t('metadata.jwtPayload')}</div>`;
       metadataHtml += `<pre style="margin: 4px 0; white-space: pre-wrap;">${JSON.stringify(
         metadata.payload,
         null,
@@ -554,9 +617,9 @@ async function handleCopy() {
   // 결과가 없거나 빈 상태일 때는 복사하지 않음
   if (
     !resultText ||
-    resultText === '결과가 여기에 표시됩니다...' ||
-    resultText === '결과가 없습니다.' ||
-    resultText === '디코딩 중...' ||
+    resultText === i18n.t('result.empty') ||
+    resultText === i18n.t('result.noResult') ||
+    resultText === i18n.t('result.decoding') ||
     resultContainer.classList.contains('empty')
   ) {
     return;
@@ -568,7 +631,7 @@ async function handleCopy() {
 
     // 복사 성공 피드백
     const originalText = copyButton.textContent;
-    copyButton.textContent = '✅ 복사됨';
+    copyButton.textContent = i18n.t('button.copied');
     copyButton.classList.add('copied');
 
     // 2초 후 원래 텍스트로 복원
@@ -590,7 +653,7 @@ async function handleCopy() {
       document.body.removeChild(textArea);
 
       const originalText = copyButton.textContent;
-      copyButton.textContent = '✅ 복사됨';
+      copyButton.textContent = i18n.t('button.copied');
       copyButton.classList.add('copied');
 
       setTimeout(() => {
@@ -599,9 +662,9 @@ async function handleCopy() {
       }, 2000);
     } catch (fallbackError) {
       console.error('Fallback 복사도 실패:', fallbackError);
-      copyButton.textContent = '❌ 실패';
+      copyButton.textContent = i18n.t('button.copyFailed');
       setTimeout(() => {
-        copyButton.textContent = '📋 복사';
+        copyButton.textContent = i18n.t('button.copy');
       }, 2000);
     }
   }
@@ -612,11 +675,11 @@ async function handleCopy() {
  */
 function handleClear() {
   inputTextarea.value = '';
-  showResult('결과가 여기에 표시됩니다...', false);
+  showResult(i18n.t('result.empty'), false);
   decoderTypeSelect.value = 'auto';
   metadataContainer.style.display = 'none';
   detectedTypeBadge.style.display = 'none';
-  copyButton.textContent = '📋 복사';
+  copyButton.textContent = i18n.t('button.copy');
   copyButton.classList.remove('copied');
   inputTextarea.focus();
 }
@@ -698,10 +761,11 @@ async function saveToHistory(
       const history: HistoryItem[] = storageResult.decoderHistory || [];
 
       // 디코더 라벨 가져오기
+      const targetType = actualType !== 'auto' ? actualType : decoderType;
       const decoderLabel =
         DecoderService.getAvailableDecoders().find(
-          (d) => d.value === actualType !== 'auto' ? actualType : decoderType
-        )?.label || '자동 감지';
+          (d) => d.value === targetType
+        )?.label || i18n.t('decoder.auto');
 
       // 새 히스토리 항목 생성
       const newItem: HistoryItem = {
@@ -980,7 +1044,7 @@ async function deleteHistoryItem(id: string) {
  */
 async function clearAllHistory() {
   if (
-    !confirm('모든 히스토리를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')
+    !confirm(i18n.t('history.confirmDeleteAll'))
   ) {
     return;
   }
@@ -997,7 +1061,7 @@ async function clearAllHistory() {
     }
   } catch (error) {
     console.error('Failed to clear history:', error);
-    alert('히스토리 삭제에 실패했습니다.');
+    alert(i18n.t('history.deleteFailed'));
   }
 }
 
@@ -1028,12 +1092,12 @@ function handleSelectAll() {
  */
 async function deleteSelectedHistory() {
   if (selectedHistoryIds.size === 0) {
-    alert('삭제할 항목을 선택해주세요.');
+    alert(i18n.t('history.selectFirst'));
     return;
   }
 
   if (
-    !confirm(`선택한 ${selectedHistoryIds.size}개의 히스토리를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)
+    !confirm(`${i18n.t('history.deleteSelected')} ${selectedHistoryIds.size}${i18n.t('history.confirmDeleteSelected')}`)
   ) {
     return;
   }
@@ -1055,7 +1119,7 @@ async function deleteSelectedHistory() {
     }
   } catch (error) {
     console.error('Failed to delete selected history:', error);
-    alert('히스토리 삭제에 실패했습니다.');
+    alert(i18n.t('history.deleteFailed'));
   }
 }
 
@@ -1084,11 +1148,11 @@ function updateSelectionUI() {
   // 선택 삭제 버튼 상태 업데이트
   if (selectedCount > 0) {
     deleteSelectedBtn.disabled = false;
-    deleteSelectedBtn.textContent = `선택 삭제 (${selectedCount})`;
+    deleteSelectedBtn.textContent = `${i18n.t('history.deleteSelected')} (${selectedCount})`;
     deleteSelectedBtn.style.opacity = '1';
   } else {
     deleteSelectedBtn.disabled = true;
-    deleteSelectedBtn.textContent = '선택 삭제';
+    deleteSelectedBtn.textContent = i18n.t('history.deleteSelected');
     deleteSelectedBtn.style.opacity = '0.5';
   }
 }
