@@ -66,9 +66,13 @@
 
 ## 🚀 설치 방법
 
-### Chrome 웹 스토어에서 설치 (사용자용)
+### Chrome 웹 스토어에서 설치 (사용자용 권장)
 
-_Coming soon - 스토어 출시 예정_
+1. [Chrome 웹 스토어](https://chromewebstore.google.com/detail/universal-decoder-all-in/ghkcchkhafjdhahkmkbakfedbbifdibb?hl=ko&utm_source=ext_sidebar) 방문
+2. **"Chrome에 추가"** 버튼 클릭
+3. 권한 확인 후 **"확장 프로그램 추가"** 클릭
+4. 브라우저 우측 상단 확장 프로그램 아이콘에서 유니버셜 디코더 실행
+
 
 ### 개발자 모드로 설치
 
