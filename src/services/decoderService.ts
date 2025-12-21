@@ -10,28 +10,8 @@ import {
   CharCodeDecoder,
   Rot13Decoder,
   GzipDecoder,
-} from './decoders';
-
-export type DecoderType =
-  | 'url'
-  | 'html'
-  | 'base64'
-  | 'base64url'
-  | 'jwt'
-  | 'hex'
-  | 'charcode'
-  | 'rot13'
-  | 'gzip'
-  | 'json-pretty'
-  | 'auto';
-
-export interface DecodeResult {
-  success: boolean;
-  result: string;
-  type: DecoderType;
-  error?: string;
-  metadata?: any;
-}
+} from '../decoders';
+import { DecoderType, DecodeResult, DecoderOption } from '../types';
 
 export class DecoderService {
   /**
@@ -245,7 +225,7 @@ export class DecoderService {
   /**
    * 사용 가능한 모든 디코더 타입 목록
    */
-  static getAvailableDecoders(): Array<{ value: DecoderType; label: string }> {
+  static getAvailableDecoders(): DecoderOption[] {
     return [
       { value: 'auto', label: '자동 감지' },
       { value: 'url', label: 'URL 디코딩' },
