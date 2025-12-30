@@ -22,6 +22,11 @@ export class Rot13Decoder {
     });
   }
 
+  static encode(input: string): string {
+    // ROT13은 대칭 암호이므로 encode = decode
+    return this.decode(input);
+  }
+
   static canDecode(input: string): boolean {
     // ROT13은 매우 드물게 사용되므로 엄격하게 검증
     // 최소 길이 체크

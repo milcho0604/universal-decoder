@@ -27,6 +27,16 @@ export class CharCodeDecoder {
     }
   }
 
+  static encode(input: string): string {
+    try {
+      // 각 문자를 charCode로 변환하여 JSON 배열로 반환
+      const codes = Array.from(input).map((char) => char.charCodeAt(0));
+      return JSON.stringify(codes);
+    } catch (e) {
+      throw new Error('Invalid text for CharCode encoding');
+    }
+  }
+
   static canDecode(input: string): boolean {
     const trimmed = input.trim();
 

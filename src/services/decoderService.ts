@@ -11,7 +11,7 @@ import {
   Rot13Decoder,
   GzipDecoder,
 } from '../decoders';
-import { DecoderType, DecodeResult, DecoderOption } from '../types';
+import { DecoderType, DecodeResult, EncodeResult, DecoderOption, ChainDecodeResult, DecodingStep } from '../types';
 
 export class DecoderService {
   /**
@@ -223,21 +223,247 @@ export class DecoderService {
   }
 
   /**
+   * 인코딩 실행
+   */
+  static async encode(
+    input: string,
+    type: DecoderType
+  ): Promise<EncodeResult> {
+    if (!input || input.trim().length === 0) {
+      return {
+        success: false,
+        result: '',
+        type,
+        error: '입력이 비어있습니다.',
+      };
+    }
+
+    // 인코딩을 지원하지 않는 타입 확인
+    const decoderOption = this.getAvailableDecoders().find(d => d.value === type);
+    if (!decoderOption?.supportsEncode) {
+      return {
+        success: false,
+        result: input,
+        type,
+        error: '이 타입은 인코딩을 지원하지 않습니다.',
+      };
+    }
+
+    try {
+      let result: string;
+
+      switch (type) {
+        case 'url':
+          result = UrlDecoder.encode(input);
+          break;
+
+        case 'html':
+          result = HtmlDecoder.encode(input);
+          break;
+
+        case 'base64':
+          result = Base64Decoder.encodeBase64(input);
+          break;
+
+        case 'base64url':
+          result = Base64Decoder.encodeBase64Url(input);
+          break;
+
+        case 'hex':
+          result = HexDecoder.encode(input);
+          break;
+
+        case 'charcode':
+          result = CharCodeDecoder.encode(input);
+          break;
+
+        case 'rot13':
+          result = Rot13Decoder.encode(input);
+          break;
+
+        case 'gzip':
+          result = await GzipDecoder.encode(input);
+          break;
+
+        default:
+          return {
+            success: false,
+            result: input,
+            type,
+            error: '지원하지 않는 인코딩 타입입니다.',
+          };
+      }
+
+      return {
+        success: true,
+        result,
+        type,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: input,
+        type,
+        error: (error as Error).message,
+      };
+    }
+  }
+
+  /**
+   * 체인 디코딩: 중첩된 인코딩을 자동으로 여러 번 디코딩
+   * 예: Base64(URL(원본)) → 2단계 디코딩
+   */
+  static async decodeChain(
+    input: string,
+    maxDepth: number = 10
+  ): Promise<ChainDecodeResult> {
+    if (!input || input.trim().length === 0) {
+      return {
+        success: false,
+        steps: [],
+        finalResult: '',
+        totalSteps: 0,
+        error: '입력이 비어있습니다.',
+      };
+    }
+
+    const steps: DecodingStep[] = [];
+    let currentInput = input;
+    let stepCount = 0;
+
+    // 순환 디코딩 방지: 이미 본 값들을 추적
+    const seenValues = new Set<string>();
+    seenValues.add(currentInput);
+
+    // 연속으로 같은 타입이 나오는지 추적 (ROT13->ROT13 방지)
+    let previousType: DecoderType | null = null;
+
+    try {
+      while (stepCount < maxDepth) {
+        // 현재 입력의 타입 자동 감지
+        const detectedType = this.detectDecoder(currentInput);
+
+        // 감지된 타입이 없거나 auto면 종료
+        if (detectedType === 'auto') {
+          // 첫 단계에서 감지 실패한 경우
+          if (stepCount === 0) {
+            return {
+              success: false,
+              steps: [],
+              finalResult: input,
+              totalSteps: 0,
+              error: '인코딩 형식을 감지할 수 없습니다.',
+            };
+          }
+          // 이미 디코딩을 했다면 성공적으로 종료
+          break;
+        }
+
+        // JSON Pretty는 체인에서 제외 (변환이지 디코딩이 아님)
+        if (detectedType === 'json-pretty') {
+          break;
+        }
+
+        // 연속으로 같은 타입이 감지되면 중단 (무한 루프 방지)
+        // 예외: URL은 중첩 가능 (encodeURIComponent를 여러 번 할 수 있음)
+        if (previousType === detectedType && detectedType !== 'url') {
+          break;
+        }
+
+        // 디코딩 시도
+        const result = await this.decode(currentInput, detectedType);
+
+        // 디코딩 실패 시
+        if (!result.success) {
+          // 첫 단계에서 실패한 경우
+          if (stepCount === 0) {
+            return {
+              success: false,
+              steps: [],
+              finalResult: input,
+              totalSteps: 0,
+              error: result.error || '디코딩에 실패했습니다.',
+            };
+          }
+          // 이미 일부 디코딩에 성공했다면 여기까지의 결과 반환
+          break;
+        }
+
+        // 디코딩 결과가 입력과 동일하면 더 이상 디코딩할 게 없음
+        if (result.result === currentInput) {
+          break;
+        }
+
+        // 순환 디코딩 감지: 이미 본 값이 다시 나타나면 중단
+        if (seenValues.has(result.result)) {
+          // 단계는 기록하되, 순환이므로 여기서 중단
+          steps.push({
+            step: stepCount + 1,
+            type: detectedType,
+            input: currentInput,
+            output: result.result,
+            success: true,
+          });
+          break;
+        }
+
+        // 단계 기록
+        steps.push({
+          step: stepCount + 1,
+          type: detectedType,
+          input: currentInput,
+          output: result.result,
+          success: true,
+        });
+
+        // 결과가 너무 짧으면 중단 (오감지 방지, 최소 3자 이상)
+        if (result.result.trim().length < 3) {
+          break;
+        }
+
+        // 다음 단계 준비
+        seenValues.add(result.result);
+        previousType = detectedType;
+        currentInput = result.result;
+        stepCount++;
+      }
+
+      // 최종 결과
+      const finalResult = steps.length > 0 ? steps[steps.length - 1].output : input;
+
+      return {
+        success: true,
+        steps,
+        finalResult,
+        totalSteps: steps.length,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        steps,
+        finalResult: input,
+        totalSteps: steps.length,
+        error: (error as Error).message,
+      };
+    }
+  }
+
+  /**
    * 사용 가능한 모든 디코더 타입 목록
    */
   static getAvailableDecoders(): DecoderOption[] {
     return [
-      { value: 'auto', label: '자동 감지' },
-      { value: 'url', label: 'URL 디코딩' },
-      { value: 'html', label: 'HTML 엔티티' },
-      { value: 'base64', label: 'Base64' },
-      { value: 'base64url', label: 'Base64URL' },
-      { value: 'jwt', label: 'JWT' },
-      { value: 'hex', label: 'Hex 문자열' },
-      { value: 'charcode', label: 'CharCode 배열' },
-      { value: 'rot13', label: 'ROT13' },
-      { value: 'gzip', label: 'Base64 + GZIP' },
-      { value: 'json-pretty', label: 'JSON Pretty Print' },
+      { value: 'auto', label: '자동 감지', supportsEncode: false },
+      { value: 'url', label: 'URL 디코딩', supportsEncode: true },
+      { value: 'html', label: 'HTML 엔티티', supportsEncode: true },
+      { value: 'base64', label: 'Base64', supportsEncode: true },
+      { value: 'base64url', label: 'Base64URL', supportsEncode: true },
+      { value: 'jwt', label: 'JWT', supportsEncode: false },
+      { value: 'hex', label: 'Hex 문자열', supportsEncode: true },
+      { value: 'charcode', label: 'CharCode 배열', supportsEncode: true },
+      { value: 'rot13', label: 'ROT13', supportsEncode: true },
+      { value: 'gzip', label: 'Base64 + GZIP', supportsEncode: true },
+      { value: 'json-pretty', label: 'JSON Pretty Print', supportsEncode: false },
     ];
   }
 }

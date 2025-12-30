@@ -21,6 +21,21 @@ export class Base64Decoder {
   }
 
   /**
+   * Base64 인코딩
+   */
+  static encodeBase64(input: string): string {
+    try {
+      // UTF-8 인코딩: 문자열을 UTF-8 바이트로 변환
+      const bytes = new TextEncoder().encode(input);
+      // Uint8Array를 바이너리 문자열로 변환
+      const binaryString = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+      return btoa(binaryString);
+    } catch (e) {
+      throw new Error('Invalid text for Base64 encoding');
+    }
+  }
+
+  /**
    * Base64URL 디코딩
    */
   static decodeBase64Url(input: string): string {
@@ -40,6 +55,20 @@ export class Base64Decoder {
       return new TextDecoder('utf-8').decode(bytes);
     } catch (e) {
       throw new Error('Invalid Base64URL string');
+    }
+  }
+
+  /**
+   * Base64URL 인코딩
+   */
+  static encodeBase64Url(input: string): string {
+    try {
+      // 먼저 Base64로 인코딩
+      const base64 = this.encodeBase64(input);
+      // Base64를 Base64URL로 변환 (패딩 제거, + → -, / → _)
+      return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    } catch (e) {
+      throw new Error('Invalid text for Base64URL encoding');
     }
   }
 

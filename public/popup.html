@@ -643,6 +643,110 @@
         font-size: 12px;
         font-style: italic;
       }
+
+      .mode-toggle-group {
+        display: flex;
+        gap: 0;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .mode-toggle-btn {
+        padding: 8px 16px;
+        border: none;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 0 0 auto;
+        border-radius: 0;
+      }
+
+      .mode-toggle-btn:first-child {
+        border-right: 1px solid var(--border-color);
+      }
+
+      .mode-toggle-btn:hover:not(.active) {
+        background: var(--btn-secondary);
+      }
+
+      .mode-toggle-btn.active {
+        background: var(--btn-primary);
+        color: white;
+      }
+
+      .mode-toggle-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .chain-steps-container {
+        margin-bottom: 12px;
+        padding: 12px;
+        background: var(--bg-tertiary);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+
+      .chain-steps-header {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .chain-step-item {
+        padding: 8px 10px;
+        margin-bottom: 6px;
+        background: var(--bg-secondary);
+        border-radius: 4px;
+        border-left: 3px solid var(--btn-primary);
+        font-size: 11px;
+        transition: all 0.2s;
+      }
+
+      .chain-step-item:last-child {
+        margin-bottom: 0;
+        border-left-color: var(--success-border);
+      }
+
+      .chain-step-header {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 4px;
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+
+      .chain-step-type {
+        padding: 2px 6px;
+        border-radius: 3px;
+        background: var(--btn-primary);
+        color: white;
+        font-size: 10px;
+      }
+
+      .chain-step-arrow {
+        color: var(--text-tertiary);
+        font-size: 10px;
+      }
+
+      .chain-step-output {
+        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 4px 0;
+      }
     </style>
   </head>
   <body>
@@ -658,6 +762,9 @@
           </button>
           <button class="auto-fetch-toggle" id="auto-fetch-toggle" data-i18n-title="header.autoFetch" title="Auto-Fetch 모드 (Storage/Cookie 자동 가져오기)">
             🔄
+          </button>
+          <button class="auto-fetch-toggle" id="chain-decode-toggle" data-i18n-title="header.chainDecode" title="체인 디코딩 (중첩 인코딩 자동 해제)">
+            🔗
           </button>
           <button class="theme-toggle" id="open-sidepanel-btn" data-i18n-title="header.sidePanel" title="Side Panel로 열기">
             📋
@@ -676,9 +783,15 @@
             <label for="decoder-type" data-i18n="decoder.label">디코딩 방식</label>
             <span id="detected-type-badge" class="detected-badge" style="display: none;"></span>
           </div>
-          <select id="decoder-type">
-            <!-- 옵션은 JavaScript에서 동적으로 추가 -->
-          </select>
+          <div class="input-group">
+            <select id="decoder-type" style="flex: 1;">
+              <!-- 옵션은 JavaScript에서 동적으로 추가 -->
+            </select>
+            <div class="mode-toggle-group">
+              <button class="mode-toggle-btn active" id="mode-decode-btn" data-mode="decode" data-i18n="mode.decode">Decode</button>
+              <button class="mode-toggle-btn" id="mode-encode-btn" data-mode="encode" data-i18n="mode.encode">Encode</button>
+            </div>
+          </div>
         </div>
 
         <div class="section" id="storage-section" style="display: none;">
@@ -729,6 +842,7 @@
               📋 복사
             </button>
           </div>
+          <div id="chain-steps-container" class="chain-steps-container" style="display: none;"></div>
           <div id="result-container" class="result-container empty" data-i18n="result.empty">
             결과가 여기에 표시됩니다...
           </div>

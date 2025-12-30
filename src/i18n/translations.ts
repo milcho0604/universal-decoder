@@ -13,6 +13,7 @@ export const translations: Translations = {
     'header.title': '🔓 Universal Decoder',
     'header.darkMode': '다크모드 토글',
     'header.autoFetch': 'Auto-Fetch 모드 (Storage/Cookie 자동 가져오기)',
+    'header.chainDecode': '체인 디코딩 (중첩 인코딩 자동 해제)',
     'header.sidePanel': 'Side Panel로 열기',
     'header.newWindow': '새 창으로 열기',
     'header.devBlog': '개발자 블로그',
@@ -30,6 +31,10 @@ export const translations: Translations = {
     'decoder.gzip': 'GZIP',
     'decoder.charcode': 'CharCode',
     'decoder.json-pretty': 'JSON Pretty',
+
+    // 모드
+    'mode.decode': '디코딩',
+    'mode.encode': '인코딩',
 
     // Storage 섹션
     'storage.title': 'Storage / Cookie 목록',
@@ -85,12 +90,19 @@ export const translations: Translations = {
     // 언어 전환
     'language.current': 'KO',
     'language.switch': '언어 전환 (한국어/English)',
+
+    // 체인 디코딩
+    'chain.title': '디코딩 단계',
+    'chain.step': '단계',
+    'chain.steps': '총 {{count}}단계',
+    'chain.finalResult': '최종 결과',
   },
   en: {
     // Header
     'header.title': '🔓 Universal Decoder',
     'header.darkMode': 'Toggle Dark Mode',
     'header.autoFetch': 'Auto-Fetch Mode (Fetch Storage/Cookie automatically)',
+    'header.chainDecode': 'Chain Decoding (Auto-decode nested encodings)',
     'header.sidePanel': 'Open in Side Panel',
     'header.newWindow': 'Open in New Window',
     'header.devBlog': 'Developer Blog',
@@ -108,6 +120,10 @@ export const translations: Translations = {
     'decoder.gzip': 'GZIP',
     'decoder.charcode': 'CharCode',
     'decoder.json-pretty': 'JSON Pretty',
+
+    // Mode
+    'mode.decode': 'Decode',
+    'mode.encode': 'Encode',
 
     // Storage section
     'storage.title': 'Storage / Cookie List',
@@ -163,5 +179,11 @@ export const translations: Translations = {
     // Language switch
     'language.current': 'EN',
     'language.switch': 'Switch Language (한국어/English)',
+
+    // Chain Decoding
+    'chain.title': 'Decoding Steps',
+    'chain.step': 'Step',
+    'chain.steps': 'Total {{count}} steps',
+    'chain.finalResult': 'Final Result',
   },
 };

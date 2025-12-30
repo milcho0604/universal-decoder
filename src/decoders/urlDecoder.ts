@@ -21,6 +21,14 @@ export class UrlDecoder {
     return result;
   }
 
+  static encode(input: string): string {
+    try {
+      return encodeURIComponent(input);
+    } catch (e) {
+      throw new Error('Invalid text for URL encoding');
+    }
+  }
+
   static canDecode(input: string): boolean {
     // 최소 길이 체크
     if (input.length < 6) {
