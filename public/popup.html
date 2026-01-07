@@ -286,6 +286,54 @@
         color: var(--text-primary);
       }
 
+      .btn-copy-small {
+        padding: 4px 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+
+      .btn-copy-small:hover {
+        background: var(--btn-secondary);
+        border-color: var(--btn-primary);
+        color: var(--btn-primary);
+        transform: scale(1.05);
+      }
+
+      .btn-copy-small:active {
+        transform: scale(0.95);
+      }
+
+      .btn-copy-small.copied {
+        background: var(--success-bg);
+        border-color: var(--success-border);
+        color: var(--success-border);
+      }
+
+      .btn-copy-small:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-copy-small:disabled:hover {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+        transform: none;
+      }
+
       .result-container {
         flex: 1;
         min-height: 150px;
@@ -823,7 +871,10 @@
         </div>
 
         <div class="section">
-          <label for="input-text" data-i18n="input.label">입력 텍스트</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label for="input-text" data-i18n="input.label">입력 텍스트</label>
+            <button class="btn-copy-small" id="copy-input-btn" title="입력 텍스트 복사" data-i18n-title="button.copy">📋</button>
+          </div>
           <textarea
             id="input-text"
             placeholder="디코딩할 텍스트를 입력하세요..."
@@ -839,9 +890,7 @@
         <div class="result-section">
           <div class="result-header">
             <label data-i18n="result.label">결과</label>
-            <button class="btn-copy" id="copy-btn" data-i18n-title="result.label" title="결과 복사" data-i18n="button.copy">
-              📋 복사
-            </button>
+            <button class="btn-copy-small" id="copy-btn" title="결과 복사" data-i18n-title="button.copy">📋</button>
           </div>
           <div id="chain-steps-container" class="chain-steps-container" style="display: none;"></div>
           <div id="result-container" class="result-container empty" data-i18n="result.empty">

@@ -154,10 +154,10 @@ export class ResultArea {
     const originalText = this.copyButton.textContent;
 
     if (success) {
-      this.copyButton.textContent = i18n.t('button.copied');
+      this.copyButton.textContent = '✅';
       this.copyButton.classList.add('copied');
     } else {
-      this.copyButton.textContent = i18n.t('button.copyFailed');
+      this.copyButton.textContent = '❌';
     }
 
     setTimeout(() => {
@@ -171,7 +171,7 @@ export class ResultArea {
    */
   clear(): void {
     this.showResult(i18n.t('result.empty'), false);
-    this.copyButton.textContent = i18n.t('button.copy');
+    this.copyButton.textContent = '📋';
     this.copyButton.classList.remove('copied');
   }
 

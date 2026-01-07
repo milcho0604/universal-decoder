@@ -64,7 +64,8 @@ export class PopupController {
     );
 
     this.inputArea = new InputArea(
-      document.getElementById('input-text') as HTMLTextAreaElement
+      document.getElementById('input-text') as HTMLTextAreaElement,
+      document.getElementById('copy-input-btn') as HTMLButtonElement
     );
 
     this.resultArea = new ResultArea(
