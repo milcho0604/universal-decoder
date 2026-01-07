@@ -4,7 +4,8 @@
       "Bash(npm run build:*)",
       "Bash(git add:*)",
       "Bash(git commit --amend -m \"$(cat <<''EOF''\nfeat: Base64 UTF-8 지원 및 자동 감지 정확도 대폭 개선\n\n- Base64/Base64URL: UTF-8 디코딩 지원으로 한글 등 멀티바이트 문자 처리\n- Base64: 최소 길이, 패딩 검증, 실제 디코딩 테스트 추가\n- Base64URL: 특수문자(-,_) 필수 포함 검증으로 일반 텍스트 오인식 방지\n- URL: 인코딩 비율 검증 (15% 이상), 최소 2개 이상의 %XX 패턴 필요\n- Hex: 최소 10자 이상, 디코딩 결과의 70% 이상이 printable 문자여야 함\n- CharCode: 최소 3개 이상, 제어 문자 제외, printable 문자 80% 이상 검증\n- ROT13: 최소 10자 이상, 일반 영어 단어 패턴 검증으로 오인식 대폭 감소\nEOF\n)\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []

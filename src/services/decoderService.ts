@@ -11,7 +11,7 @@ import {
   Rot13Decoder,
   GzipDecoder,
 } from '../decoders';
-import { DecoderType, DecodeResult, EncodeResult, DecoderOption, ChainDecodeResult, DecodingStep } from '../types';
+import { DecoderType, DecodeResult, DecoderOption, ChainDecodeResult, DecodingStep } from '../types';
 
 export class DecoderService {
   /**
@@ -211,93 +211,6 @@ export class DecoderService {
         result: finalResult,
         type,
         metadata,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        result: input,
-        type,
-        error: (error as Error).message,
-      };
-    }
-  }
-
-  /**
-   * 인코딩 실행
-   */
-  static async encode(
-    input: string,
-    type: DecoderType
-  ): Promise<EncodeResult> {
-    if (!input || input.trim().length === 0) {
-      return {
-        success: false,
-        result: '',
-        type,
-        error: '입력이 비어있습니다.',
-      };
-    }
-
-    // 인코딩을 지원하지 않는 타입 확인
-    const decoderOption = this.getAvailableDecoders().find(d => d.value === type);
-    if (!decoderOption?.supportsEncode) {
-      return {
-        success: false,
-        result: input,
-        type,
-        error: '이 타입은 인코딩을 지원하지 않습니다.',
-      };
-    }
-
-    try {
-      let result: string;
-
-      switch (type) {
-        case 'url':
-          result = UrlDecoder.encode(input);
-          break;
-
-        case 'html':
-          result = HtmlDecoder.encode(input);
-          break;
-
-        case 'base64':
-          result = Base64Decoder.encodeBase64(input);
-          break;
-
-        case 'base64url':
-          result = Base64Decoder.encodeBase64Url(input);
-          break;
-
-        case 'hex':
-          result = HexDecoder.encode(input);
-          break;
-
-        case 'charcode':
-          result = CharCodeDecoder.encode(input);
-          break;
-
-        case 'rot13':
-          result = Rot13Decoder.encode(input);
-          break;
-
-        case 'gzip':
-          result = await GzipDecoder.encode(input);
-          break;
-
-        default:
-          return {
-            success: false,
-            result: input,
-            type,
-            error: '지원하지 않는 인코딩 타입입니다.',
-          };
-      }
-
-      return {
-        success: true,
-        result,
-        type,
       };
     } catch (error) {
       return {

@@ -12,6 +12,7 @@ import {
   LanguageToggle,
 } from '../components';
 import { DecoderService } from '../../services/decoderService';
+import { EncoderService } from '../../services/encoderService';
 import { HistoryService } from '../../services/historyService';
 import { i18n } from '../../i18n/i18n';
 import { openSidePanel, openNewWindow } from '../../utils/chrome';
@@ -419,7 +420,7 @@ export class PopupController {
       } else {
         // 인코딩 모드
         this.hideChainSteps();
-        const result = await DecoderService.encode(input, decoderType);
+        const result = await EncoderService.encode(input, decoderType);
 
         if (result.success) {
           this.resultArea.showResult(result.result, true);

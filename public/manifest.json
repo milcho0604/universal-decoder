@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Universal Decoder | All in One Decoder",
-  "version": "2.0.0",
+  "version": "1.4.0",
   "description": "10가지 인코딩 형식을 자동으로 인식하고 원본 텍스트로 디코딩하는 올인원 도구입니다.\nAutomatically detects and decodes 10 encoding formats into original text.",
   "action": {
     "default_popup": "popup.html",
