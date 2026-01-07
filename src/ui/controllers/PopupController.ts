@@ -222,8 +222,7 @@ export class PopupController {
    */
   private showChainSteps(steps: any[], totalSteps: number): void {
     const stepsHtml = steps.map((step, index) => {
-      const decoderLabel = DecoderService.getAvailableDecoders()
-        .find(d => d.value === step.type)?.label || step.type;
+      const decoderLabel = i18n.t(`decoder.${step.type}`) || step.type;
 
       const truncatedOutput = step.output.length > 100
         ? step.output.substring(0, 100) + '...'
@@ -355,9 +354,7 @@ export class PopupController {
 
             // 히스토리에 저장 (최종 결과만)
             const lastStep = chainResult.steps[chainResult.steps.length - 1];
-            const decoderLabel =
-              DecoderService.getAvailableDecoders().find((d) => d.value === lastStep.type)
-                ?.label || i18n.t('decoder.auto');
+            const decoderLabel = i18n.t(`decoder.${lastStep.type}`) || i18n.t('decoder.auto');
 
             await HistoryService.saveToHistory(
               input,
@@ -388,9 +385,7 @@ export class PopupController {
             this.resultArea.showResult(result.result, true, undefined, result.metadata);
 
             // 히스토리에 저장
-            const decoderLabel =
-              DecoderService.getAvailableDecoders().find((d) => d.value === result.type)
-                ?.label || i18n.t('decoder.auto');
+            const decoderLabel = i18n.t(`decoder.${result.type}`) || i18n.t('decoder.auto');
 
             await HistoryService.saveToHistory(
               input,
@@ -427,7 +422,7 @@ export class PopupController {
           this.decoderSelector.hideBadge();
         } else {
           this.resultArea.showResult(
-            result.error || i18n.t('result.error') + 'Encoding failed',
+            result.error || i18n.t('error.encodeFailed'),
             false,
             result.error
           );

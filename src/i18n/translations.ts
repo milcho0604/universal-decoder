@@ -78,6 +78,13 @@ export const translations: Translations = {
     'result.inputEmpty': '입력이 비어있습니다.',
     'result.error': '오류가 발생했습니다: ',
     'result.decodeFailed': '디코딩 실패',
+    
+    // 에러 메시지
+    'error.encodeNotSupported': '이 타입은 인코딩을 지원하지 않습니다.',
+    'error.unsupportedEncodeType': '지원하지 않는 인코딩 타입입니다.',
+    'error.unsupportedDecodeType': '지원하지 않는 디코딩 타입입니다.',
+    'error.cannotDetectFormat': '인코딩 형식을 감지할 수 없습니다.',
+    'error.encodeFailed': '인코딩 실패',
 
     // 메타데이터
     'metadata.jwtHeader': 'JWT Header:',
@@ -167,6 +174,13 @@ export const translations: Translations = {
     'result.inputEmpty': 'Input is empty.',
     'result.error': 'Error occurred: ',
     'result.decodeFailed': 'Decode failed',
+    
+    // Error messages
+    'error.encodeNotSupported': 'This type does not support encoding.',
+    'error.unsupportedEncodeType': 'Unsupported encoding type.',
+    'error.unsupportedDecodeType': 'Unsupported decoding type.',
+    'error.cannotDetectFormat': 'Cannot detect encoding format.',
+    'error.encodeFailed': 'Encoding failed',
 
     // Metadata
     'metadata.jwtHeader': 'JWT Header:',

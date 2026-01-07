@@ -76,7 +76,12 @@ export class StoragePanel {
         this.updateList(data.items);
       }
     } catch (error) {
-      this.showError((error as Error).message);
+      const errorMessage = (error as Error).message;
+      // i18n 키인지 확인하고 변환
+      const translatedMessage = errorMessage.startsWith('storage.error.') || errorMessage.startsWith('error.')
+        ? i18n.t(errorMessage)
+        : errorMessage;
+      this.showError(translatedMessage);
     }
   }
 

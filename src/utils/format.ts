@@ -1,13 +1,17 @@
 /**
  * 포맷팅 유틸리티
  */
+import { i18n } from '../i18n/i18n';
 
 /**
- * 날짜를 한국어 형식으로 포맷
+ * 날짜를 현재 언어 설정에 맞게 포맷
  */
 export function formatDate(timestamp: number): string {
   const date = new Date(timestamp);
-  return date.toLocaleString('ko-KR', {
+  const language = i18n.getLanguage();
+  const locale = language === 'ko' ? 'ko-KR' : 'en-US';
+  
+  return date.toLocaleString(locale, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

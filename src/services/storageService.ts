@@ -13,7 +13,7 @@ export class StorageService {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
       if (!tab.id || !tab.url) {
-        throw new Error('현재 탭을 찾을 수 없습니다.');
+        throw new Error('storage.error.noTab');
       }
 
       // chrome://, edge://, about:, file:// 등 특수 페이지 체크
@@ -24,7 +24,7 @@ export class StorageService {
         url.startsWith('file://') ||
         url.startsWith('view-source:')
       ) {
-        throw new Error('이 페이지에서는 Storage에 접근할 수 없습니다.\n(브라우저 시스템 페이지)');
+        throw new Error('storage.error.restricted');
       }
 
       // Content script로 메시지 전송
@@ -35,7 +35,7 @@ export class StorageService {
       if (response && response.items) {
         return response;
       } else {
-        throw new Error('Storage 데이터를 가져올 수 없습니다.');
+        throw new Error('storage.error.fetch');
       }
     } catch (error) {
       console.error('Failed to fetch storage data:', error);

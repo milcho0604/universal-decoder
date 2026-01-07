@@ -13,6 +13,7 @@ import {
 } from '../decoders';
 import { DecoderType, EncodeResult } from '../types';
 import { DecoderService } from './decoderService';
+import { i18n } from '../i18n/i18n';
 
 export class EncoderService {
   /**
@@ -27,7 +28,7 @@ export class EncoderService {
         success: false,
         result: '',
         type,
-        error: '입력이 비어있습니다.',
+        error: i18n.t('result.inputEmpty'),
       };
     }
 
@@ -38,7 +39,7 @@ export class EncoderService {
         success: false,
         result: input,
         type,
-        error: '이 타입은 인코딩을 지원하지 않습니다.',
+        error: i18n.t('error.encodeNotSupported'),
       };
     }
 
@@ -83,7 +84,7 @@ export class EncoderService {
             success: false,
             result: input,
             type,
-            error: '지원하지 않는 인코딩 타입입니다.',
+            error: i18n.t('error.unsupportedEncodeType'),
           };
       }
 

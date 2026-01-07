@@ -12,6 +12,7 @@ import {
   GzipDecoder,
 } from '../decoders';
 import { DecoderType, DecodeResult, DecoderOption, ChainDecodeResult, DecodingStep } from '../types';
+import { i18n } from '../i18n/i18n';
 
 export class DecoderService {
   /**
@@ -129,7 +130,7 @@ export class DecoderService {
         success: false,
         result: '',
         type: 'auto',
-        error: '입력이 비어있습니다.',
+        error: i18n.t('result.inputEmpty'),
       };
     }
 
@@ -193,7 +194,7 @@ export class DecoderService {
             success: false,
             result: input,
             type: 'auto',
-            error: '지원하지 않는 디코딩 타입입니다.',
+            error: i18n.t('error.unsupportedDecodeType'),
           };
       }
 
@@ -236,7 +237,7 @@ export class DecoderService {
         steps: [],
         finalResult: '',
         totalSteps: 0,
-        error: '입력이 비어있습니다.',
+        error: i18n.t('result.inputEmpty'),
       };
     }
 
@@ -265,7 +266,7 @@ export class DecoderService {
               steps: [],
               finalResult: input,
               totalSteps: 0,
-              error: '인코딩 형식을 감지할 수 없습니다.',
+              error: i18n.t('error.cannotDetectFormat'),
             };
           }
           // 이미 디코딩을 했다면 성공적으로 종료
@@ -295,7 +296,7 @@ export class DecoderService {
               steps: [],
               finalResult: input,
               totalSteps: 0,
-              error: result.error || '디코딩에 실패했습니다.',
+              error: result.error || i18n.t('result.decodeFailed'),
             };
           }
           // 이미 일부 디코딩에 성공했다면 여기까지의 결과 반환

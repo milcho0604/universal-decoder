@@ -114,7 +114,7 @@ export class HistoryPanel {
     const inputPreview = truncateText(item.input, 60);
     const arrowIcon =
       isRecent && hasMore
-        ? '<button class="history-item-arrow" title="목록 펼치기/접기">▼</button>'
+        ? `<button class="history-item-arrow" title="${i18n.t('history.toggleExpand')}">▼</button>`
         : '';
 
     itemDiv.innerHTML = `
@@ -124,7 +124,7 @@ export class HistoryPanel {
       </div>
       <div class="history-item-actions">
         ${arrowIcon}
-        <button class="history-item-delete" data-id="${item.id}" title="삭제">🗑️</button>
+        <button class="history-item-delete" data-id="${item.id}" title="${i18n.t('history.delete')}">🗑️</button>
       </div>
       <div class="history-item-header">
         <span class="history-item-type">${escapeHtml(item.decoderLabel)}</span>
@@ -205,14 +205,14 @@ export class HistoryPanel {
       if (arrow) {
         arrow.textContent = '▼';
         arrow.classList.remove('expanded');
-        arrow.title = '목록 펼치기';
+        arrow.title = i18n.t('history.toggleExpand');
       }
     } else {
       this.listContainer.classList.add('visible');
       if (arrow) {
         arrow.textContent = '▲';
         arrow.classList.add('expanded');
-        arrow.title = '목록 접기';
+        arrow.title = i18n.t('history.toggleCollapse');
       }
     }
   }
