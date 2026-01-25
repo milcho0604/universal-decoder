@@ -71,7 +71,8 @@ export class PopupController {
     this.resultArea = new ResultArea(
       document.getElementById('result-container') as HTMLDivElement,
       document.getElementById('metadata-container') as HTMLDivElement,
-      document.getElementById('copy-btn') as HTMLButtonElement
+      document.getElementById('copy-btn') as HTMLButtonElement,
+      document.getElementById('download-btn') as HTMLButtonElement
     );
 
     this.historyPanel = new HistoryPanel(

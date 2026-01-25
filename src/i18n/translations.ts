@@ -69,6 +69,9 @@ export const translations: Translations = {
     'button.copy': '📋 복사',
     'button.copied': '✅ 복사됨',
     'button.copyFailed': '❌ 실패',
+    'button.download': '💾 다운로드',
+    'button.downloaded': '✅ 저장됨',
+    'button.downloadFailed': '❌ 실패',
 
     // 결과
     'result.label': '결과',
@@ -165,6 +168,9 @@ export const translations: Translations = {
     'button.copy': '📋 Copy',
     'button.copied': '✅ Copied',
     'button.copyFailed': '❌ Failed',
+    'button.download': '💾 Download',
+    'button.downloaded': '✅ Saved',
+    'button.downloadFailed': '❌ Failed',
 
     // Result
     'result.label': 'Result',

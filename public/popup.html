@@ -890,7 +890,10 @@
         <div class="result-section">
           <div class="result-header">
             <label data-i18n="result.label">결과</label>
-            <button class="btn-copy-small" id="copy-btn" title="결과 복사" data-i18n-title="button.copy">📋</button>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn-copy-small" id="copy-btn" title="결과 복사" data-i18n-title="button.copy">📋</button>
+              <button class="btn-copy-small" id="download-btn" title="결과 다운로드" data-i18n-title="button.download">💾</button>
+            </div>
           </div>
           <div id="chain-steps-container" class="chain-steps-container" style="display: none;"></div>
           <div id="result-container" class="result-container empty" data-i18n="result.empty">
