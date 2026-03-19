@@ -7,13 +7,13 @@
 **사용 목적:**
 
 - 현재 활성 탭의 URL을 확인하여 브라우저 시스템 페이지(chrome://, edge://, about:, file:// 등)를 감지하고, 해당 페이지에서는 Storage 접근 기능을 차단합니다.
-- Content Script와 통신하여 웹 페이지의 localStorage, sessionStorage, cookie 데이터를 안전하게 가져옵니다 (Auto-Fetch 기능).
+- Content Script와 통신하여 웹 페이지의 localStorage, sessionStorage, document.cookie 데이터를 안전하게 가져옵니다 (Auto-Fetch 기능).
 - Side Panel을 열 때 현재 탭이 속한 창(windowId)을 식별합니다.
 
 **구체적 사용 위치:**
 
-- `src/popup.ts`의 `fetchStorageData()` 함수: 현재 탭 정보 조회 및 Content Script로 메시지 전송
-- `src/popup.ts`의 `openSidePanel()` 함수: 현재 탭의 windowId 가져오기
+- `src/services/storageService.ts`의 `fetchStorageData()` 함수: 현재 탭 정보 조회 및 Content Script로 메시지 전송
+- `src/utils/chrome.ts`의 `openSidePanel()` 함수: 현재 탭의 `windowId`를 가져와 background service worker에 전달
 
 **보안 고려사항:**
 
@@ -26,16 +26,20 @@
 
 **사용 목적:**
 
-- 사용자 설정을 로컬에 저장하여 다음 사용 시 자동으로 복원합니다.
+- 사용자 설정과 히스토리를 로컬에 저장하여 다음 사용 시 자동으로 복원합니다.
   - **다크모드 설정**: 사용자의 테마 선호도 저장
   - **디코더 타입 설정**: 마지막으로 선택한 디코더 타입 저장 (자동/수동 선택)
   - **Auto-Fetch 모드 설정**: Storage 자동 가져오기 기능의 활성화 상태 저장
+  - **언어 설정**: 한국어/영어 UI 선택 저장
+  - **히스토리**: 최근 디코딩 결과 최대 50개 저장
 
 **구체적 사용 위치:**
 
-- `src/popup.ts`의 `initializeTheme()` / `toggleTheme()`: 다크모드 설정 저장/불러오기
-- `src/popup.ts`의 `initializeAutoFetch()` / `toggleAutoFetch()`: Auto-Fetch 모드 설정 저장/불러오기
-- `src/popup.ts`의 `initializeDecoderOptions()` / `saveDecoderType()`: 디코더 타입 설정 저장/불러오기
+- `src/ui/components/ThemeToggle.ts`: 다크모드 설정 저장/불러오기
+- `src/ui/components/StoragePanel.ts` + `src/services/storageService.ts`: Auto-Fetch 모드 설정 저장/불러오기
+- `src/ui/components/DecoderSelector.ts`: 디코더 타입 설정 저장/불러오기
+- `src/i18n/i18n.ts`: 언어 설정 저장/불러오기
+- `src/services/historyService.ts`: 디코딩 히스토리 저장/불러오기/삭제
 
 **데이터 처리:**
 
@@ -54,7 +58,7 @@
 **구체적 사용 위치:**
 
 - `src/background.ts`: Side Panel API를 사용하여 사이드 패널 열기
-- `src/popup.ts`의 `openSidePanel()` 함수: 사용자가 Side Panel 열기 버튼을 클릭할 때 호출
+- `src/utils/chrome.ts`의 `openSidePanel()` 함수: 사용자가 Side Panel 열기 버튼을 클릭할 때 호출
 
 **사용자 경험:**
 
@@ -70,13 +74,13 @@
 **Purpose:**
 
 - Access the currently active tab's URL to detect browser system pages (chrome://, edge://, about:, file://, etc.) and block Storage access functionality on those pages.
-- Communicate with Content Scripts to safely retrieve localStorage, sessionStorage, and cookie data from web pages (Auto-Fetch feature).
+- Communicate with Content Scripts to safely retrieve localStorage, sessionStorage, and document.cookie data from web pages (Auto-Fetch feature).
 - Identify the window (windowId) that the current tab belongs to when opening the Side Panel.
 
 **Specific Usage:**
 
-- `src/popup.ts` `fetchStorageData()` function: Query current tab information and send messages to Content Script
-- `src/popup.ts` `openSidePanel()` function: Get the current tab's windowId
+- `src/services/storageService.ts` `fetchStorageData()` function: Query current tab information and send messages to Content Script
+- `src/utils/chrome.ts` `openSidePanel()` function: Get the current tab's windowId and forward it to the background service worker
 
 **Security Considerations:**
 
@@ -89,16 +93,20 @@
 
 **Purpose:**
 
-- Store user preferences locally to automatically restore them on next use:
+- Store user preferences and decoding history locally to automatically restore them on next use:
   - **Dark mode setting**: Save user's theme preference
   - **Decoder type setting**: Save the last selected decoder type (auto/manual selection)
   - **Auto-Fetch mode setting**: Save the activation state of the Storage auto-fetch feature
+  - **Language setting**: Save the selected UI language
+  - **History**: Save up to 50 recent decoding records
 
 **Specific Usage:**
 
-- `src/popup.ts` `initializeTheme()` / `toggleTheme()`: Save/load dark mode setting
-- `src/popup.ts` `initializeAutoFetch()` / `toggleAutoFetch()`: Save/load Auto-Fetch mode setting
-- `src/popup.ts` `initializeDecoderOptions()` / `saveDecoderType()`: Save/load decoder type setting
+- `src/ui/components/ThemeToggle.ts`: Save/load dark mode setting
+- `src/ui/components/StoragePanel.ts` + `src/services/storageService.ts`: Save/load Auto-Fetch mode setting
+- `src/ui/components/DecoderSelector.ts`: Save/load decoder type setting
+- `src/i18n/i18n.ts`: Save/load language setting
+- `src/services/historyService.ts`: Save/load/delete decoding history
 
 **Data Handling:**
 
@@ -117,7 +125,7 @@
 **Specific Usage:**
 
 - `src/background.ts`: Use Side Panel API to open the side panel
-- `src/popup.ts` `openSidePanel()` function: Called when user clicks the Side Panel open button
+- `src/utils/chrome.ts` `openSidePanel()` function: Called when user clicks the Side Panel open button
 
 **User Experience:**
 

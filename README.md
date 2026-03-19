@@ -2,7 +2,7 @@
 
 > 개발자를 위한 올인원 디코딩 도구 - 모든 인코딩 형식을 한 번에!
 
-**Universal Decoder**는 다양한 인코딩 형식을 자동으로 감지하고 디코딩하는 Chrome 확장 프로그램입니다. URL, Base64, JWT, Hex, ROT13 등 10가지 이상의 형식을 지원하며, 개발자의 생산성을 높이는 강력한 도구입니다.
+**Universal Decoder**는 다양한 인코딩 형식을 자동으로 감지해 디코딩하고, 지원되는 형식은 반대로 다시 인코딩할 수도 있는 Chrome 확장 프로그램입니다. URL, Base64, JWT, Hex, ROT13 등 10가지 이상의 형식을 지원하며, 개발자의 생산성을 높이는 강력한 도구입니다.
 
 <div style="display:flex; gap:16px;">
   <img src="https://github.com/user-attachments/assets/3c47f758-33e1-4c15-b791-917f2a0dddcd" width="300" />
@@ -64,7 +64,7 @@
 
 ### 🔄 Auto-Fetch 모드 (NEW!)
 
-- 현재 페이지의 **localStorage**, **sessionStorage**, **Cookies**를 자동 수집
+- 현재 페이지의 **localStorage**, **sessionStorage**, **document.cookie** 값을 자동 수집
 - 클릭 한 번으로 즉시 디코딩 - 복사/붙여넣기 불필요
 - 개발자의 반복 작업을 획기적으로 단축
 
@@ -124,7 +124,7 @@
 1. 이 저장소를 클론합니다
 
    ```bash
-   git clone https://github.com/yourusername/universal-decoder.git
+   git clone https://github.com/milcho0604/universal-decoder.git
    cd universal-decoder
    ```
 
@@ -197,22 +197,30 @@
 ### 프로젝트 구조
 
 ```
-Decoding/
-├── public/              # 정적 파일
-│   ├── manifest.json    # Chrome Extension manifest
-│   ├── popup.html       # Popup UI
-│   └── icons/           # 아이콘 파일
+universal-decoder/
+├── public/
+│   ├── manifest.json          # Chrome Extension manifest
+│   ├── popup.html             # Popup / Side Panel / 독립 창에서 공용으로 사용하는 UI
+│   └── icons/
 ├── src/
-│   ├── popup.ts         # Popup 로직
-│   ├── content.ts       # Content Script (Storage 수집)
-│   ├── background.ts    # Background Service Worker
-│   ├── decoderService.ts # 디코더 서비스 (자동 감지)
-│   └── decoders/        # 개별 디코더 클래스
-│       ├── base64Decoder.ts
-│       ├── jwtDecoder.ts
-│       └── ...
-├── dist/                # 빌드 출력 (gitignore)
-└── vite.config.ts       # Vite 설정
+│   ├── popup.ts               # UI 엔트리 포인트
+│   ├── background.ts          # Service worker
+│   ├── content.ts             # 페이지 Storage / cookie 수집용 content script
+│   ├── decoders/              # 포맷별 decode / encode 구현
+│   ├── services/
+│   │   ├── decoderService.ts  # 자동 감지, 일반 디코딩, 체인 디코딩
+│   │   ├── encoderService.ts  # 인코딩 처리
+│   │   ├── storageService.ts  # Auto-Fetch 연동
+│   │   └── historyService.ts  # 히스토리 저장/조회
+│   ├── ui/
+│   │   ├── controllers/       # PopupController
+│   │   └── components/        # InputArea, ResultArea, HistoryPanel 등
+│   ├── i18n/                  # KO / EN 번역 및 DOM 반영
+│   ├── utils/                 # Chrome API, DOM, format 유틸
+│   └── types/                 # 공통 타입 정의
+├── TEST_VALUES.txt            # 수동 테스트 케이스
+├── vite.config.ts             # Vite multi-entry 설정
+└── tsconfig.json
 ```
 
 ### 빌드 명령어
@@ -229,6 +237,7 @@ npm run dev
 
 1. `src/decoders/` 에 새 파일 생성 (예: `myDecoder.ts`)
 2. `decode()`와 `canDecode()` 정적 메서드 구현
+   인코딩도 지원하려면 `encode()`도 함께 구현
 
    ```typescript
    export class MyDecoder {
@@ -245,7 +254,8 @@ npm run dev
    ```
 
 3. `src/decoders/index.ts`에 export 추가
-4. `src/decoderService.ts`에 import 및 우선순위 설정
+4. `src/services/decoderService.ts`에 import 및 우선순위 설정
+5. 인코딩을 지원한다면 `src/services/encoderService.ts`에도 연결
 
 ## 🔧 기술 스택
 
@@ -277,13 +287,12 @@ npm run dev
 
 | 권한               | 사용 목적                                              |
 | ------------------ | ------------------------------------------------------ |
-| `storage`          | 다크모드, 디코더 타입, Auto-Fetch 설정 저장            |
-| `cookies`          | Auto-Fetch 모드에서 쿠키 데이터 읽기                   |
-| `activeTab`        | 현재 탭의 URL 확인 (시스템 페이지 차단용)              |
-| `sidePanel`        | Side Panel 모드 제어 (Chrome 114+)                     |
-| `host_permissions` | Content Script 주입 (localStorage/sessionStorage 접근) |
+| `storage`          | 다크모드, 디코더 타입, Auto-Fetch, 언어, 히스토리 저장                 |
+| `activeTab`        | 현재 탭의 URL 확인, 현재 창 식별, content script와 통신                |
+| `sidePanel`        | Side Panel 모드 제어 (Chrome 114+)                                     |
+| `host_permissions` | HTTP/HTTPS 페이지에 content script 주입 후 localStorage/sessionStorage/document.cookie 접근 |
 
-> **보안**: Content Script는 사용자가 Auto-Fetch를 활성화할 때만 데이터를 수집하며, 모든 데이터는 로컬에서만 처리됩니다.
+> **보안**: Content Script는 HTTP/HTTPS 페이지에만 주입되며, Storage 데이터는 사용자가 Auto-Fetch를 활성화했을 때만 읽어옵니다. 모든 데이터는 로컬에서만 처리됩니다.
 
 ## 🤝 기여하기
 
