@@ -58,6 +58,12 @@ export const translations: Translations = {
     'history.confirmDeleteSelected': '개의 히스토리를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
     'history.selectFirst': '삭제할 항목을 선택해주세요.',
     'history.deleteFailed': '히스토리 삭제에 실패했습니다.',
+    'history.retention.label': '보관 기간',
+    'history.retention.1day': '1일',
+    'history.retention.7days': '7일',
+    'history.retention.30days': '30일',
+    'history.retention.90days': '90일',
+    'history.retention.unlimited': '무제한',
 
     // 입력 텍스트
     'input.label': '입력 텍스트',
@@ -157,6 +163,12 @@ export const translations: Translations = {
     'history.confirmDeleteSelected': ' items will be deleted.\nThis action cannot be undone.',
     'history.selectFirst': 'Please select items to delete.',
     'history.deleteFailed': 'Failed to delete history.',
+    'history.retention.label': 'Retention',
+    'history.retention.1day': '1 day',
+    'history.retention.7days': '7 days',
+    'history.retention.30days': '30 days',
+    'history.retention.90days': '90 days',
+    'history.retention.unlimited': 'Unlimited',
 
     // Input text
     'input.label': 'Input Text',

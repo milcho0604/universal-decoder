@@ -40,6 +40,9 @@ export class PopupController {
   // 체인 단계 표시 컨테이너
   private chainStepsContainer: HTMLDivElement;
 
+  // 히스토리 보관 기간 select
+  private historyRetentionSelect: HTMLSelectElement;
+
   // 현재 모드
   private currentMode: ProcessMode = 'decode';
   private chainDecodeEnabled: boolean = false;
@@ -56,6 +59,9 @@ export class PopupController {
 
     // 체인 단계 컨테이너
     this.chainStepsContainer = document.getElementById('chain-steps-container') as HTMLDivElement;
+
+    // 히스토리 보관 기간 select
+    this.historyRetentionSelect = document.getElementById('history-retention-select') as HTMLSelectElement;
 
     // 컴포넌트 초기화
     this.decoderSelector = new DecoderSelector(
@@ -117,6 +123,10 @@ export class PopupController {
     await this.storagePanel.initialize();
     await this.themeToggle.initialize();
 
+    // 히스토리 보관 기간 초기화
+    const savedRetention = await HistoryService.getRetentionDays();
+    this.historyRetentionSelect.value = String(savedRetention);
+
     // 이벤트 리스너 설정
     this.setupEventListeners();
 
@@ -127,6 +137,13 @@ export class PopupController {
    * 이벤트 리스너 설정
    */
   private setupEventListeners(): void {
+    // 히스토리 보관 기간 변경
+    this.historyRetentionSelect.addEventListener('change', async () => {
+      const days = Number(this.historyRetentionSelect.value);
+      await HistoryService.saveRetentionDays(days);
+      await this.historyPanel.loadHistory();
+    });
+
     // 모드 토글 버튼
     this.modeDecodeBtn.addEventListener('click', () => this.handleModeChange('decode'));
     this.modeEncodeBtn.addEventListener('click', () => this.handleModeChange('encode'));

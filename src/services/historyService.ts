@@ -7,6 +7,25 @@ import { HistoryItem, DecoderType } from '../types';
 export class HistoryService {
   private static readonly MAX_HISTORY = 50;
   private static readonly STORAGE_KEY = 'decoderHistory';
+  private static readonly RETENTION_KEY = 'historyRetentionDays';
+
+  static async getRetentionDays(): Promise<number> {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        const result = await chrome.storage.local.get([this.RETENTION_KEY]);
+        return result[this.RETENTION_KEY] ?? 30;
+      }
+    } catch {
+      // ignore
+    }
+    return 30;
+  }
+
+  static async saveRetentionDays(days: number): Promise<void> {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      await chrome.storage.local.set({ [this.RETENTION_KEY]: days });
+    }
+  }
 
   /**
    * 히스토리 저장
@@ -30,9 +49,9 @@ export class HistoryService {
         // 새 히스토리 항목 생성
         const newItem: HistoryItem = {
           id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          input: input.substring(0, 200), // 최대 200자로 제한
+          input: input.substring(0, 2000),
           decoderType: decoderType,
-          result: result.substring(0, 200), // 최대 200자로 제한
+          result: result.substring(0, 2000),
           timestamp: Date.now(),
           decoderLabel: decoderLabel,
         };
@@ -45,8 +64,24 @@ export class HistoryService {
           history.splice(this.MAX_HISTORY);
         }
 
-        // 저장
-        await chrome.storage.local.set({ [this.STORAGE_KEY]: history });
+        // 저장 (quota 초과 시 오래된 항목부터 삭제 후 재시도)
+        let saved = false;
+        while (!saved && history.length > 0) {
+          try {
+            await chrome.storage.local.set({ [this.STORAGE_KEY]: history });
+            saved = true;
+          } catch (e: unknown) {
+            if (
+              e instanceof Error &&
+              e.message?.includes('QUOTA_BYTES') &&
+              history.length > 1
+            ) {
+              history.pop();
+            } else {
+              throw e;
+            }
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to save history:', error);
@@ -65,7 +100,19 @@ export class HistoryService {
         chrome.storage.local
       ) {
         const storageResult = await chrome.storage.local.get([this.STORAGE_KEY]);
-        return storageResult[this.STORAGE_KEY] || [];
+        let history: HistoryItem[] = storageResult[this.STORAGE_KEY] || [];
+
+        const retentionDays = await this.getRetentionDays();
+        if (retentionDays > 0) {
+          const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+          const filtered = history.filter((item) => item.timestamp >= cutoff);
+          if (filtered.length !== history.length) {
+            history = filtered;
+            await chrome.storage.local.set({ [this.STORAGE_KEY]: history });
+          }
+        }
+
+        return history;
       }
       return [];
     } catch (error) {

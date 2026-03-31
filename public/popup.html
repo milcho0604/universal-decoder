@@ -859,7 +859,14 @@
                 <span data-i18n="history.selectAll">전체 선택</span>
               </label>
             </div>
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <select id="history-retention-select" style="font-size: 11px; padding: 3px 4px; height: 26px; width: auto; flex: 0 0 auto;" title="보관 기간">
+                <option value="1" data-i18n="history.retention.1day">1일</option>
+                <option value="7" data-i18n="history.retention.7days">7일</option>
+                <option value="30" data-i18n="history.retention.30days" selected>30일</option>
+                <option value="90" data-i18n="history.retention.90days">90일</option>
+                <option value="-1" data-i18n="history.retention.unlimited">무제한</option>
+              </select>
               <button class="btn-copy" id="delete-selected-btn" style="font-size: 11px; padding: 4px 8px; opacity: 0.5; cursor: not-allowed;" disabled data-i18n="history.deleteSelected">선택 삭제</button>
               <button class="btn-copy" id="clear-history-btn" style="font-size: 11px; padding: 4px 8px;" data-i18n="history.deleteAll">전체 삭제</button>
             </div>
